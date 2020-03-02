@@ -6,7 +6,7 @@ from flask import Flask, Blueprint
 from flask_restplus import Api
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from instance.config import config
+from instance.configuration import config
 from app.api.v1 import version_one as v1
 from migrations import DbModel
 
