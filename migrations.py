@@ -11,40 +11,26 @@ class DbModel():
     """
 
     def __init__(self):
-
-        # self.db_host = current_app.config['DB_HOST']
-        # self.db_username = current_app.config['DB_USER']
-        # self.db_password = current_app.config['DB_PASSWORD']
-        # self.db_name = current_app.config['DB_NAME']
         self.db_url = current_app.config['DATABASE_URL']
 
-        # try:
-        #     self.conn = psycopg2.connect(
-        #         host=self.db_host,
-        #         user=self.db_username,
-        #         password=self.db_password,
-        #         database=self.db_name,
-        #     )
-        #     self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
-        # except:
-        #     self.conn = psycopg2.connect(self.db_url)
-        #     self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
+        try:
+            self.conn = psycopg2.connect(self.db_url)
+            self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
+        except (Exception, psycopg2.OperationalError) as err:
+            print (err)
+            print('oops! Could not connect using Url\n')
+            
 
     def init_db(self, app):
         try:
-            self.conn = psycopg2.connect(
-                host=app.config['DB_HOST'],
-                user=app.config['DB_USER'],
-                password=app.config['DB_PASSWORD'],
-                database=app.config['DB_NAME'],
-            )
-            print("connectted to db using creds...\n")
-            self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
-        except:
             url =app.config['DATABASE_URL']
             self.conn = psycopg2.connect(url)
             print('connected to db using url...\n')
             self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
+        except (Exception, psycopg2.OperationalError) as err:
+            print (err)
+            print('oops! Could not connect using Url\n')
+            
             
            
     def create_tables(self):
