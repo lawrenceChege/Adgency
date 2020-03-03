@@ -26,7 +26,7 @@ class UserModel(DbModel):
         self.username = username
         self.registered = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
         self.isAdmin = isAdmin
-        # self.Admin = self.is_admin()
+        
 
 
     def generate_pass_hash(self):
@@ -204,7 +204,7 @@ class UserModel(DbModel):
             return self.token
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-            print('could not save to db')
+            print('Error creating user in database')
 
     def login_user(self, username):
         """
@@ -214,23 +214,3 @@ class UserModel(DbModel):
         """
         token = self.generate_jwt_token(username)
         return token
-
-    def is_admin(self):
-        try:
-            user = self.find_by_username('Admin')
-            if user:
-                self.user = user
-            else:
-                data = ('Administrator', 'One', 'main', 'Admin', 'admin@gmail.com',
-                        708686842, generate_password_hash('Admin$123G'), time.strftime('%a, %d %b %Y, %I:%M:%S %p'), True, )
-                self.cur.execute(
-                    """
-                        INSERT INTO users (firstname, lastname, othernames, username, email, phoneNumber, password, registered, isAdmin)
-                        VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                    """, data
-                )
-                self.commit()
-                return True
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-            print('could not save to db')
