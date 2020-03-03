@@ -5,21 +5,15 @@ from app.api.v1.views.users import Users, User, ViewUsers, ManageUsers
 from flask_jwt_extended.exceptions import NoAuthorizationError
 # from twilio.base.exceptions import TwilioRestException
 
-version_one = Blueprint("v1", __name__, url_prefix="/api/v1")
+version_one = Blueprint("v1", __name__, url_prefix="/api")
 API = Api(version_one, catch_all_404s= True)
 
 
-# API.add_resource(Incidents, '/incidents/')
-# API.add_resource(Incident, '/incidents/<int:incident_id>/')
-# API.add_resource(Comment, '/incidents/<int:incident_id>/comment')
-# API.add_resource(Location, '/incidents/<int:incident_id>/location')
 # API.add_resource(Status, '/incidents/<int:incident_id>/status')
-API.add_resource(Users, '/auth/signup/')
-API.add_resource(User, '/auth/login/')
-# API.add_resource(Filter_by_recordtype, '/incidents/<record_type>/')
-# API.add_resource(MyIncidents, '/incidents/me/')
-API.add_resource(ViewUsers, '/admin/users/')
-# API.add_resource(ManageUsers, '/admin/users/<int:user_id>/')
+API.add_resource(Users, '/signup/')
+API.add_resource(User, '/login/')
+API.add_resource(ViewUsers, '/users/')
+
 
 
 @API.errorhandler
