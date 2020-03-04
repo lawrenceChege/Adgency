@@ -72,6 +72,25 @@ class ConceptsModel(DbModel):
             return self.findAll()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
+            print("An error occured when retrieving all concepts")
+            return None
+
+    def find_concepts_by_category(self, concept_category):
+        """
+            Filter incidents by category
+        """
+        try:
+            self.cur.execute(
+                """ SELECT * 
+                FROM concepts
+                WHERE 
+                concept_category=%s
+                """,(concept_category,)
+            )
+            return self.findAll()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            print("An error occured when retrieving concepts by category")
             return None
 
     def save_concept_to_database(self):
@@ -127,6 +146,7 @@ class ConceptsModel(DbModel):
             return True
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
+            print('An error occured when trying to edit the concept in the database')
             return None
 
     def delete_concept(self, concept_id):
@@ -141,4 +161,7 @@ class ConceptsModel(DbModel):
             return True
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
+            print('An error occured when trying to delete the concept from the database')
             return None
+
+    
