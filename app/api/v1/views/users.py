@@ -2,9 +2,10 @@
     This module holds the views for the users
 """
 from flask_restplus import Resource, reqparse, Api
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import (jwt_required, get_jwt_identity,
+ jwt_refresh_token_required, get_raw_jwt, create_access_token)
 from flask import request, Flask, jsonify
-from app.api.v1.models.users import UserModel
+from app.api.v1.models.users import UserModel, RevokedTokenModel
 from app.api.v1.validators.validators import Validate
 
 app = Flask(__name__)
@@ -129,10 +130,41 @@ class User(Resource):
             return {"status": 200,
                         "data": [{
                             "id": user_id,
-                            "token": "Bearer"+" "+ token
+                            "access_token": "Bearer"+" "+ token["access_token"]
                         }],
                         "message": "successful"}, 201
         return {"status":500, "error": "Oops! something went Wrong!"},500
+
+    @jwt_required
+    def delete(self):
+        jti = get_raw_jwt()['jti']
+        try:
+            RevokedTokenModel().revoke_token(jti)
+            return {"status": 200,
+                        "message": "successful logout"}, 2
+        except:
+            return {'error': 'Something went wrong'}, 500
+
+class TokenRefresh(Resource):
+    @jwt_refresh_token_required
+    def post(self):
+        current_user = get_jwt_identity()
+        access_token = create_access_token(identity = current_user)
+        return {"status": 200,
+                        "data": [{
+                            "user": current_user,
+                            "access_token": "Bearer"+" "+ access_token
+                        }],
+                        "message": "successful"}, 201
+
+    @jwt_refresh_token_required
+    def delete(self):
+        jti = get_raw_jwt()['jti']
+        try:
+            RevokedTokenModel().revoke_token(jti)
+            return {'message': 'User successfuly logged out'}
+        except:
+            return {'message': 'Something went wrong'}, 500
 
 class ViewUsers(Resource):
     """
@@ -158,6 +190,7 @@ class ViewUsers(Resource):
             "message": "All users found Successfully"
         }
         )
+   
 
 class ManageUsers(Resource):
     """
@@ -248,3 +281,4 @@ class ManageUsers(Resource):
             "status": 200,
             "message": "User successfully deleted"
         }
+   

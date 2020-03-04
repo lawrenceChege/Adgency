@@ -143,6 +143,12 @@ class DbModel():
                     user_id INT REFERENCES users (user_id) ON UPDATE CASCADE,
                     CONSTRAINT workspace_users_pkey PRIMARY KEY (user_id, workspace_id)
                 )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS revoked_tokens(               
+                    token_id SERIAL PRIMARY KEY NOT NULL,
+                    token VARCHAR(120) NOT NULL
+                )
             """
 
         )

@@ -4,7 +4,7 @@
 import time
 import psycopg2
 from flask import request
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, create_refresh_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from migrations import DbModel
 
@@ -48,9 +48,14 @@ class UserModel(DbModel):
         match = check_password_hash(self.password, password)
         return match
 
-    def generate_jwt_token(self, username):
+    def generate_access_token(self, username):
         self.user_id = self.find_user_id(username)
         token = create_access_token(identity=self.user_id)
+        return token
+
+    def generate_refresh_token(self, username):
+        self.user_id = self.find_user_id(username)
+        token = create_refresh_token(identity=self.user_id)
         return token
 
     def get_password(self, username):
@@ -212,5 +217,50 @@ class UserModel(DbModel):
             It takes username and password as parameters and
             It returns jwt token
         """
-        token = self.generate_jwt_token(username)
-        return token
+        access_token = self.generate_access_token(username)
+        refresh_token = self.generate_refresh_token(username)
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }
+
+class RevokedTokenModel(DbModel):
+    """
+        Revoke tokens
+    """
+    def __init__(self):
+        super().__init__()
+
+    def find_revoked_token(self, token):
+        """
+        Find token in revoked tokens
+        """
+        try:
+            self.cur.execute(
+                "SELECT token FROM revoked_tokens WHERE token=%s", (token,)
+                )
+            token = self.findOne()
+            return token
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            return None
+
+    def is_jti_blacklisted(self, token):
+        query = find_revoked_token(token)
+        return bool(query)
+
+    def revoke_token(self, token):
+        """
+            This method revokes a token.
+        """
+        try:
+            self.cur.execute(
+                """
+                    INSERT INTO revoked_tokens (token)
+                    VALUES(%s);
+                """, (token,)
+            )
+            self.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            print('Error creating user in database')
