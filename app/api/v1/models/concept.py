@@ -30,6 +30,7 @@ class ConceptsModel(DbModel):
         self.created_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
         self.modified_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
         self.created_by = get_jwt_identity()
+        self.modified_by = get_jwt_identity()
 
     def find_concept_by_name(self, name):
         """
@@ -59,6 +60,20 @@ class ConceptsModel(DbModel):
             print("An error occured when retrieving concept using id")
             return None
 
+
+    def get_all_concepts(self):
+        """
+            This method returns all the saved concepts
+        """
+        try:
+            self.cur.execute(
+                "SELECT * FROM concepts"
+            )
+            return self.findAll()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            return None
+
     def save_concept_to_database(self):
         """
             Save the concept to the database
@@ -66,15 +81,15 @@ class ConceptsModel(DbModel):
         try:
             data =( self.concept_name, self.concept_category, self.concept_mood ,
                     self.concept_audience, self.concept_platform,self.project_id,
-                    self.created_by,self.created_on,self.modified_on )
+                    self.created_by,self.created_on,self.modified_on, self.modified_by )
 
             self.cur.execute(
                 """
                     INSERT INTO incidents (
                        concept_name, concept_category, concept_mood,
                        concept_audience, concept_platform, project_id,
-                       created_by,created_on,modified_on)
-                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);
+                       created_by,created_on,modified_on, modified_by)
+                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                 """, data
             )
             self.commit()
@@ -82,4 +97,34 @@ class ConceptsModel(DbModel):
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             print('An error occured when trying to save the concept to the database')
+            return None
+
+    def edit_concept(self,concept_name, concept_category, concept_mood,
+                       concept_audience, concept_platform, concept_id):
+        """
+            This method can modify one or all the fields of a concept
+            
+        """
+        try:
+            self.cur.execute(
+                """
+                UPDATE incidents
+                SET
+                concept_name= %s,
+                concept_category= %s,
+                concept_mood= %s,
+                concept_audience= %s,
+                concept_platform= %s,
+                modified_by= %s,
+                modified_on= %s,
+                WHERE concept_id = %s;
+                """,(concept_name, concept_category, concept_mood,
+                       concept_audience, concept_platform,
+                       self.modified_by,self.modified_on, concept_id,
+                )
+                )
+            self.commit()
+            return True
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
             return None

@@ -89,6 +89,7 @@ class DbModel():
                     project_id INT REFERENCES projects (project_id),
                     created_by INT REFERENCES users (user_id),
                     created_on VARCHAR(50) NOT NULL ,
+                    modified_by INT REFERENCES users (user_id),
                     modified_on VARCHAR(50) NOT NULL,
                 )
             """,
