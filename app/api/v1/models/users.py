@@ -205,7 +205,7 @@ class UserModel(DbModel):
                 """, data
             )
             self.commit()
-            self.token = self.generate_jwt_token(self.username)
+            self.token = self.generate_access_token(self.username)
             return self.token
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -246,7 +246,7 @@ class RevokedTokenModel(DbModel):
             return None
 
     def is_jti_blacklisted(self, token):
-        query = find_revoked_token(token)
+        query = self.find_revoked_token(token)
         return bool(query)
 
     def revoke_token(self, token):
