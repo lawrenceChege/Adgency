@@ -108,7 +108,7 @@ class ConceptsModel(DbModel):
         try:
             self.cur.execute(
                 """
-                UPDATE incidents
+                UPDATE concepts
                 SET
                 concept_name= %s,
                 concept_category= %s,
@@ -122,6 +122,20 @@ class ConceptsModel(DbModel):
                        concept_audience, concept_platform,
                        self.modified_by,self.modified_on, concept_id,
                 )
+                )
+            self.commit()
+            return True
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            return None
+
+    def delete_concept(self, concept_id):
+        """
+            This method removes an concept by id from the database.
+        """
+        try:
+            self.cur.execute(
+                "DELETE FROM concepts WHERE concept_id=%s", (concept_id,)
                 )
             self.commit()
             return True
