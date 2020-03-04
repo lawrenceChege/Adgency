@@ -78,15 +78,18 @@ class DbModel():
                 )
             """,
             """
-                CREATE TABLE IF NOT EXISTS concept(
+                CREATE TABLE IF NOT EXISTS concepts(
                     concept_id SERIAL PRIMARY KEY NOT NULL,
-                    concept_name VARCHAR(100) NOT NULL,
+                    concept_name VARCHAR(100) NOT NULL unique,
                     concept_item VARCHAR(100) NOT NULL,
                     concept_category VARCHAR(100),
                     concept_mood VARCHAR(255),
                     concept_audience VARCHAR(255),
                     concept_platform VARCHAR(100),
-                    project_id INT REFERENCES projects (project_id)
+                    project_id INT REFERENCES projects (project_id),
+                    created_by INT REFERENCES users (user_id),
+                    created_on VARCHAR(50) NOT NULL ,
+                    modified_on VARCHAR(50) NOT NULL,
                 )
             """,
             """
