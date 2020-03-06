@@ -31,8 +31,7 @@ class DbModel():
             print (err)
             print('oops! Could not connect using Url\n')
             
-            
-           
+
     def create_tables(self):
         """
             Create tables in the database
@@ -82,6 +81,7 @@ class DbModel():
                     concept_id SERIAL PRIMARY KEY NOT NULL,
                     concept_name VARCHAR(100) NOT NULL unique,
                     concept_item VARCHAR(100) NOT NULL,
+                    concept_image VARCHAR(200),
                     concept_category VARCHAR(100),
                     concept_mood VARCHAR(255),
                     concept_audience VARCHAR(255),
@@ -90,7 +90,7 @@ class DbModel():
                     created_by INT REFERENCES users (user_id),
                     created_on VARCHAR(50) NOT NULL ,
                     modified_by INT REFERENCES users (user_id),
-                    modified_on VARCHAR(50) NOT NULL,
+                    modified_on VARCHAR(50) NOT NULL
                 )
             """,
             """

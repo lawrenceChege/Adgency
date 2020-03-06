@@ -12,7 +12,8 @@ class ConceptsModel(DbModel):
     """
         This clas handles data manipulation for the concepts view
     """
-    def __init__(self, concept_name=None, concept_item=None, concept_category=None,
+    #TODO implement with an object or kwargs
+    def __init__(self, concept_name=None, concept_item=None, concept_image=None, concept_category=None,
         concept_mood=None, concept_audience=None, concept_platform=None,project_id=None):
         """
             Initialize the concept class and import 
@@ -22,6 +23,7 @@ class ConceptsModel(DbModel):
         super().__init__()
         self.concept_name = concept_name
         self.concept_item = concept_item
+        self.concept_image = concept_image
         self.concept_category = concept_category
         self.concept_mood = concept_mood
         self.concept_audience = concept_audience
@@ -32,13 +34,13 @@ class ConceptsModel(DbModel):
         self.created_by = get_jwt_identity()
         self.modified_by = get_jwt_identity()
 
-    def find_concept_by_name(self, name):
+    def find_concept_by_name(self, concept_name):
         """
             Fetch a concept from database using its name
         """
         try:
             self.cur.execute(
-                "SELECT * FROM concepts WHERE name=%s", (name,)
+                "SELECT * FROM concepts WHERE concept_name=%s", (concept_name,)
             )
             return self.findOne()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -98,17 +100,16 @@ class ConceptsModel(DbModel):
             Save the concept to the database
         """
         try:
-            data =( self.concept_name, self.concept_category, self.concept_mood ,
-                    self.concept_audience, self.concept_platform,self.project_id,
-                    self.created_by,self.created_on,self.modified_on, self.modified_by )
+            data =( self.concept_name,self.concept_item, self.concept_image, self.concept_category, self.concept_mood ,
+                    self.concept_audience, self.concept_platform,
+                    self.created_by,self.created_on,self.modified_on, self.modified_by, )
 
             self.cur.execute(
                 """
-                    INSERT INTO incidents (
-                       concept_name, concept_category, concept_mood,
-                       concept_audience, concept_platform, project_id,
-                       created_by,created_on,modified_on, modified_by)
-                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    INSERT INTO concepts (concept_name,concept_item,concept_image, 
+                                            concept_category, concept_mood,concept_audience,concept_platform,
+                                            created_by,created_on,modified_on, modified_by)
+                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                 """, data
             )
             self.commit()
@@ -118,7 +119,9 @@ class ConceptsModel(DbModel):
             print('An error occured when trying to save the concept to the database')
             return None
 
-    def edit_concept(self,concept_name, concept_category, concept_mood,
+#TODO implement without parameters
+ 
+    def edit_concept(self,concept_name,concept_item, concept_image, concept_category, concept_mood,
                        concept_audience, concept_platform, concept_id):
         """
             This method can modify one or all the fields of a concept
@@ -130,6 +133,8 @@ class ConceptsModel(DbModel):
                 UPDATE concepts
                 SET
                 concept_name= %s,
+                concept_item=%s,
+                concept_image=%s,
                 concept_category= %s,
                 concept_mood= %s,
                 concept_audience= %s,
@@ -137,7 +142,7 @@ class ConceptsModel(DbModel):
                 modified_by= %s,
                 modified_on= %s,
                 WHERE concept_id = %s;
-                """,(concept_name, concept_category, concept_mood,
+                """,(concept_name, concept_item,concept_image, concept_category, concept_mood,
                        concept_audience, concept_platform,
                        self.modified_by,self.modified_on, concept_id,
                 )

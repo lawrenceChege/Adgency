@@ -27,8 +27,6 @@ def create_app(config_name):
     APP.register_blueprint(v1)
     APP.config['JWT_ACCESS_TOKEN_EXPIRES'] = timeout
     APP.config['JWT_SECRET_KEY'] = '123rfgbrf776yt'
-    APP.config['JWT_BLACKLIST_ENABLED'] = True
-    APP.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
     APP.url_map.strict_slashes = False
     
     return APP
