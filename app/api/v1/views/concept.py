@@ -104,3 +104,16 @@ class Concepts(Resource):
                 "message": "Concept created successfully"
             },201
 
+    def get(self):
+        """
+            This method retrives all the posted concepts from the database
+        """
+        self.model = ConceptsModel()
+        concepts = self.model.get_all_concepts()
+        if Concepts:            
+            return {"status": 200,
+                            "data": [{
+                                "All concepts": concepts
+                            }],
+                            "message": "All conceptss found successfully"}, 200
+        return {"status": 404,"message": 'No conceptss found'},404
