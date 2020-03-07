@@ -22,85 +22,85 @@ class Concepts(Resource):
         """
         parser = reqparse.RequestParser(bundle_errors=True)
 
-        parser.add_argument("concept_name",
+        parser.add_argument("name",
                             type=str,
                             required=True,
                             help="Concept name is required.")
 
-        parser.add_argument("concept_item",
-                            type=str,
-                            required=True,
-                            help="Concept item is required.")
-
-        parser.add_argument("concept_image",
+        parser.add_argument("image",
                             type=str,
                             help="Concept image is optional.")
 
-        parser.add_argument("concept_category",
+        parser.add_argument("category",
                             type=str,
                             required=True,
                             help="Concept category is required.")
 
-        parser.add_argument("concept_mood",
+        parser.add_argument("overview",
                             type=str,
-                            help="Concept mood is optional.")
+                            help="Concept overview is optional.")
 
-        parser.add_argument("concept_audience",
+        parser.add_argument("tone",
                             type=str,
-                            help="Concept audience is optional.")
+                            help="Concept tone is optional.")
 
-        parser.add_argument("concept_platform",
+        parser.add_argument("style",
                             type=str,
-                            help="Concept platform is optional.")
+                            help="Concept style is optional.")
+
+        parser.add_argument("duration",
+                            type=str,
+                            help="Concept duration is optional.")
 
         Valid = Validate()
         args = parser.parse_args()
 
-        concept_name = args.get("concept_name").strip()
-        concept_item = args.get("concept_item").strip()
-        concept_image = args.get("concept_image").strip()
-        concept_category = args.get("concept_category").strip()
-        concept_mood = args.get("concept_mood").strip()
-        concept_audience = args.get("concept_audience").strip()
-        concept_platform = args.get("concept_platform").strip()
-        self.model = ConceptsModel(concept_name=concept_name, concept_item=concept_item,
-                                   concept_image=concept_image, concept_category=concept_category,
-                                   concept_mood=concept_mood, concept_audience=concept_audience,
-                                   concept_platform=concept_platform)
+        data = { 
+            "name": args.get("name").strip(),
+            "image": args.get("image").strip(),
+            "category" : args.get("category").strip(),
+            "overview" : args.get("overview").strip(),
+            "tone" : args.get("tone").strip(),
+            "style": args.get("style").strip(),
+            "duration" : args.get("duration").strip()
+            }
+        self.model = ConceptsModel()
 
         if not request.json:
             return jsonify({"error": "Make sure your request type is application/json"})
-        if not Valid.valid_string(concept_name) or not bool(concept_name):
+        if not Valid.valid_string(data["name"]) or not bool(data["name"]):
             return {"error": "Concept name is invalid or empty",
-                    "hint": "Concept name should be a sting"}, 400
-        if not Valid.valid_string(concept_item) or not bool(concept_item):
-            return {"error": "Concept item is invalid or empty",
-                    "hint": "Concept item should be a sting"}, 400
+                    "hint": "Concept name should be a string"}, 400
         #TODO VALIDATE LINK
-        if not Valid.valid_string(concept_image) or not bool(concept_image):
+        if not Valid.valid_string(data["image"]) or not bool(data["image"]):
             return {"error": "Concept image is invalid or empty",
                     "hint": "Concept image should be a link"}, 400
-        if not Valid.valid_string(concept_category) or not bool(concept_category):
+        if not Valid.valid_string(data["category"]) or not bool(data["category"]):
             return {"error": "Concept category is invalid or empty",
-                    "hint": "Concept category should be a sting"}, 400
-        if not Valid.valid_string(concept_mood) or not bool(concept_mood):
-            return {"error": "Concept mood is invalid or empty",
-                    "hint": "Concept mood should be a sting"}, 400
-        if not Valid.valid_string(concept_audience) or not bool(concept_audience):
-            return {"error": "Concept audience is invalid or empty",
-                    "hint": "Concept audience should be a sting"}, 400
-        if not Valid.valid_string(concept_platform) or not bool(concept_platform):
-            return {"error": "Concept platfrom is invalid or empty",
-                    "hint": "Concept platfrom should be a sting"}, 400
+                    "hint": "Concept category should be a string"}, 400
+
+        if not Valid.valid_string(data["overview"]) or not bool(data["overview"]):
+            return {"error": "Concept overview is invalid or empty",
+                    "hint": "Concept category should be a string"}, 400
+
+        if not Valid.valid_string(data["tone"]) or not bool(data["tone"]):
+            return {"error": "Concept tone is invalid or empty",
+                    "hint": "Concept tone should be a string"}, 400
+        if not Valid.valid_string(data["style"]) or not bool(data["style"]):
+            return {"error": "Concept style is invalid or empty",
+                    "hint": "Concept style should be a string"}, 400
+        if not Valid.valid_string(data["duration"]) or not bool(data["duration"]):
+            return {"error": "Concept duration is invalid or empty",
+                    "hint": "Concept duration should be a string"}, 400
         #TODO redirect to edit concept
-        if self.model.find_concept_by_name(concept_name):
+        if self.model.find_concept_by_name(data["name"]):
             return {"status": 400, "error": "Concept already exists"}, 400
 
-        if self.model.save_concept_to_database():
+        if self.model.save_concept_to_database(**data):
             return {
                 "status": 201,
                 "data": [{
-                    "concept": self.model.find_concept_by_name(concept_name),
+                    "concept": self.model.find_concept_by_name(data["name"]),
                 }],
                 "message": "Concept created successfully"
             }, 201
@@ -148,84 +148,84 @@ class Concept(Resource):
         """
         parser = reqparse.RequestParser(bundle_errors=True)
 
-        parser.add_argument("concept_name",
+        parser.add_argument("name",
                             type=str,
                             required=True,
                             help="Concept name is required.")
 
-        parser.add_argument("concept_item",
-                            type=str,
-                            required=True,
-                            help="Concept item is required.")
-
-        parser.add_argument("concept_image",
+        parser.add_argument("image",
                             type=str,
                             help="Concept image is optional.")
 
-        parser.add_argument("concept_category",
+        parser.add_argument("category",
                             type=str,
                             required=True,
                             help="Concept category is required.")
 
-        parser.add_argument("concept_mood",
+        parser.add_argument("overview",
                             type=str,
-                            help="Concept mood is optional.")
+                            help="Concept overview is optional.")
 
-        parser.add_argument("concept_audience",
+        parser.add_argument("tone",
                             type=str,
-                            help="Concept audience is optional.")
+                            help="Concept tone is optional.")
 
-        parser.add_argument("concept_platform",
+        parser.add_argument("style",
                             type=str,
-                            help="Concept platform is optional.")
+                            help="Concept style is optional.")
+
+        parser.add_argument("duration",
+                            type=str,
+                            help="Concept duration is optional.")
 
         Valid = Validate()
         args = parser.parse_args()
 
-        concept_name = args.get("concept_name").strip()
-        concept_item = args.get("concept_item").strip()
-        concept_image = args.get("concept_image").strip()
-        concept_category = args.get("concept_category").strip()
-        concept_mood = args.get("concept_mood").strip()
-        concept_audience = args.get("concept_audience").strip()
-        concept_platform = args.get("concept_platform").strip()
-        self.model = ConceptsModel(concept_name=concept_name, concept_item=concept_item,
-                                   concept_image=concept_image, concept_category=concept_category,
-                                   concept_mood=concept_mood, concept_audience=concept_audience,
-                                   concept_platform=concept_platform)
+        data = { 
+            "name": args.get("name").strip(),
+            "image": args.get("image").strip(),
+            "category" : args.get("category").strip(),
+            "overview" : args.get("overview").strip(),
+            "tone" : args.get("tone").strip(),
+            "style": args.get("style").strip(),
+            "duration" : args.get("duration").strip()
+            }
+        self.model = ConceptsModel()
 
         if not request.json:
             return jsonify({"error": "Make sure your request type is application/json"})
-        if not Valid.valid_string(concept_name) or not bool(concept_name):
+        if not Valid.valid_string(data["name"]) or not bool(data["name"]):
             return {"error": "Concept name is invalid or empty",
-                    "hint": "Concept name should be a sting"}, 400
-        if not Valid.valid_string(concept_item) or not bool(concept_item):
-            return {"error": "Concept item is invalid or empty",
-                    "hint": "Concept item should be a sting"}, 400
+                    "hint": "Concept name should be a string"}, 400
         #TODO VALIDATE LINK
-        if not Valid.valid_string(concept_image) or not bool(concept_image):
+        if not Valid.valid_string(data["image"]) or not bool(data["image"]):
             return {"error": "Concept image is invalid or empty",
                     "hint": "Concept image should be a link"}, 400
-        if not Valid.valid_string(concept_category) or not bool(concept_category):
+        if not Valid.valid_string(data["category"]) or not bool(data["category"]):
             return {"error": "Concept category is invalid or empty",
-                    "hint": "Concept category should be a sting"}, 400
-        if not Valid.valid_string(concept_mood) or not bool(concept_mood):
-            return {"error": "Concept mood is invalid or empty",
-                    "hint": "Concept mood should be a sting"}, 400
-        if not Valid.valid_string(concept_audience) or not bool(concept_audience):
-            return {"error": "Concept audience is invalid or empty",
-                    "hint": "Concept audience should be a sting"}, 400
-        if not Valid.valid_string(concept_platform) or not bool(concept_platform):
-            return {"error": "Concept platfrom is invalid or empty",
-                    "hint": "Concept platfrom should be a sting"}, 400
+                    "hint": "Concept category should be a string"}, 400
+
+        if not Valid.valid_string(data["overview"]) or not bool(data["overview"]):
+            return {"error": "Concept overview is invalid or empty",
+                    "hint": "Concept category should be a string"}, 400
+
+        if not Valid.valid_string(data["tone"]) or not bool(data["tone"]):
+            return {"error": "Concept tone is invalid or empty",
+                    "hint": "Concept tone should be a string"}, 400
+        if not Valid.valid_string(data["style"]) or not bool(data["style"]):
+            return {"error": "Concept style is invalid or empty",
+                    "hint": "Concept style should be a string"}, 400
+        if not Valid.valid_string(data["duration"]) or not bool(data["duration"]):
+            return {"error": "Concept duration is invalid or empty",
+                    "hint": "Concept duration should be a string"}, 400
         #TODO redirect to edit concept
         if not self.model.find_concept_by_id(concept_id):
             return {"status": 400, "error": "Concept not found"}, 404
 
 
-        concept = self.model.edit_concept(concept_name,concept_item, concept_image, concept_category,
-                                   concept_mood, concept_audience,concept_platform, concept_id)
+        concept = self.model.edit_concept(concept_id, **data)
         if not concept:
+            print(concept)
             return {"status": 302, "error": "Concept not updated"}, 302
         return {"status": 200,
                 "data": [
@@ -236,29 +236,19 @@ class Concept(Resource):
                 "message": "Concept updated successfully!"}, 200
 
     @jwt_required
-    def delete(self, incident_id):
+    def delete(self, concept_id):
         """
-            This method removes an incident from the db
+            This method removes a concept from the db
         """
-        self.model = IncidentsModel()
-        incident = self.model.get_incident_by_id(incident_id)
-        if not incident:
-            return {"status": 404, "error": "Incident not found"}, 404
-
-        createdby = incident.get('createdby')
-        user = self.model.current_user()
-
-        if not self.model.check_incident_status(incident_id):
-            return {'status': 403, "error": "This action is forbidden."}
-        if user != createdby:
-            return {'status': 403, "error": "This action is forbidden.",
-                    'message': ' You are trying to delete someone else post'}
-
-        if self.model.delete_incident(incident_id):
+        self.model = ConceptsModel()
+        if not self.model.find_concept_by_id(concept_id):
+            return {"status": 400, "error": "Concept not found"}, 404
+        
+        if self.model.delete_concept(concept_id) :
             return {"status": 200,
                     "data": [
                         {
-                            "incident": incident_id,
+                            "Conncept id": concept_id,
                         }
                     ],
-                    "message": "Incident successfuly deleted"}, 200
+                    "message": "Concept successfuly deleted"}, 200

@@ -41,8 +41,8 @@ class DbModel():
             """
                 CREATE TABLE IF NOT EXISTS companies(
                     company_id SERIAL PRIMARY KEY NOT NULL,
-                    company_email VARCHAR(100) unique,
-                    company_name VARCHAR(100) NOT NULL,
+                    email VARCHAR(100) unique,
+                    name VARCHAR(100) NOT NULL,
                     is_client BOOLEAN NOT NULL DEFAULT FALSE
                 )
             """,
@@ -62,10 +62,10 @@ class DbModel():
             """
                 CREATE TABLE IF NOT EXISTS projects(
                     project_id SERIAL PRIMARY KEY NOT NULL,
-                    project_name VARCHAR(100) NOT NULL,
-                    project_company INT REFERENCES companies (company_id),
-                    project_client INT REFERENCES companies (company_id),
-                    project_status CHAR(10),
+                    name VARCHAR(100) NOT NULL,
+                    company INT REFERENCES companies (company_id),
+                    client INT REFERENCES companies (company_id),
+                    status CHAR(10),
                     created_at DATE NOT NULL
                     
                 )
@@ -73,19 +73,71 @@ class DbModel():
             """
                 CREATE TABLE IF NOT EXISTS workspaces(
                     workspace_id SERIAL PRIMARY KEY NOT NULL,
-                    workspace_name VARCHAR(100) NOT NULL
+                    name VARCHAR(100) NOT NULL
+                )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS audiences(
+                    audience_id SERIAL PRIMARY KEY NOT NULL,
+                    age_group VARCHAR(100) NOT NULL,
+                    gender VARCHAR(255),                    
+                    location VARCHAR(100)
+                )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS objectives(
+                    objective_id SERIAL PRIMARY KEY NOT NULL,
+                    objective VARCHAR(255)
+                )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS insights(
+                    insight_id SERIAL PRIMARY KEY NOT NULL,
+                    insight VARCHAR(255)
+                )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS usps (
+                    usp_id SERIAL PRIMARY KEY NOT NULL,
+                    usp VARCHAR(255)
+                )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS platforms(
+                    platform_id SERIAL PRIMARY KEY NOT NULL,
+                    name VARCHAR(100), 
+                    requirement VARCHAR(255)
+                )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS other_info(
+                    other_info_id SERIAL PRIMARY KEY NOT NULL,
+                    info VARCHAR(255)
+                )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS mandatory_info(
+                    mandatory_info_id SERIAL PRIMARY KEY NOT NULL,
+                    info VARCHAR(255)
                 )
             """,
             """
                 CREATE TABLE IF NOT EXISTS concepts(
                     concept_id SERIAL PRIMARY KEY NOT NULL,
-                    concept_name VARCHAR(100) NOT NULL unique,
-                    concept_item VARCHAR(100) NOT NULL,
-                    concept_image VARCHAR(200),
-                    concept_category VARCHAR(100),
-                    concept_mood VARCHAR(255),
-                    concept_audience VARCHAR(255),
-                    concept_platform VARCHAR(100),
+                    name VARCHAR(100) NOT NULL unique,
+                    image VARCHAR(200),
+                    category VARCHAR(100),
+                    overview VARCHAR(200),
+                    tone VARCHAR(100),
+                    style VARCHAR(100),
+                    duration VARCHAR(100),
+                    usp INT REFERENCES usps (usp_id),
+                    insight INT REFERENCES insights (insight_id),
+                    audience INT REFERENCES audiences (audience_id),
+                    platform INT REFERENCES platforms (platform_id),
+                    objective INT REFERENCES objectives (objective_id),
+                    other_info INT REFERENCES other_info (other_info_id),
+                    mandatory_info INT REFERENCES mandatory_info (mandatory_info_id),
                     project_id INT REFERENCES projects (project_id),
                     created_by INT REFERENCES users (user_id),
                     created_on VARCHAR(50) NOT NULL ,
@@ -160,13 +212,13 @@ class DbModel():
         try:
             for command in commands:
                 self.cur.execute(command)
-                print('creating table ..\n')
+                print('creating table ... :-)\n')
             self.commit()
             self.close()
 
         except (Exception, psycopg2.DatabaseError) as error:
             print (error)
-            print('could not create tables\n')
+            print('could not create tables :-(\n')
         finally:
             if self.conn is not None:
                 self.conn.close()

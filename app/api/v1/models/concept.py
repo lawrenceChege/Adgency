@@ -14,33 +14,24 @@ class ConceptsModel(DbModel):
     """
     #TODO implement with an object or kwargs
 
-    def __init__(self, concept_name=None, concept_item=None, concept_image=None, concept_category=None,
-                 concept_mood=None, concept_audience=None, concept_platform=None, project_id=None):
+    def __init__(self):
         """
             Initialize the concept class and import 
         """
 
         super().__init__()
-        self.concept_name = concept_name
-        self.concept_item = concept_item
-        self.concept_image = concept_image
-        self.concept_category = concept_category
-        self.concept_mood = concept_mood
-        self.concept_audience = concept_audience
-        self.concept_platform = concept_platform
-        self.project_id = project_id
         self.created_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
         self.modified_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
         self.created_by = get_jwt_identity()
         self.modified_by = get_jwt_identity()
 
-    def find_concept_by_name(self, concept_name):
+    def find_concept_by_name(self, name):
         """
             Fetch a concept from database using its name
         """
         try:
             self.cur.execute(
-                "SELECT * FROM concepts WHERE concept_name=%s", (concept_name,)
+                "SELECT * FROM concepts WHERE name=%s", (name,)
             )
             return self.findOne()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -85,7 +76,7 @@ class ConceptsModel(DbModel):
                 """ SELECT * 
                 FROM concepts
                 WHERE 
-                concept_category=%s
+                category=%s
                 """, (concept_category,)
             )
             return self.findAll()
@@ -94,20 +85,26 @@ class ConceptsModel(DbModel):
             print("An error occured when retrieving concepts by category")
             return None
 
-    def save_concept_to_database(self):
+    def save_concept_to_database(self, **data):
         """
             Save the concept to the database
         """
+        self.name = data["name"]
+        self.image = data["image"]
+        self.category = data["category"]
+        self.overview = data["overview"]
+        self.tone = data["tone"]
+        self.style = data["style"]
+        self.duration= data["duration"] 
         try:
-            data = (self.concept_name, self.concept_item, self.concept_image, self.concept_category, self.concept_mood,
-                    self.concept_audience, self.concept_platform,
-                    self.created_by, self.created_on, self.modified_on, self.modified_by, )
+            data = (self.name, self.image, self.category, self.overview, self.tone,
+                    self.style, self.duration, self.created_on, self.modified_on,
+                    self.created_by, self.modified_by)
 
             self.cur.execute(
                 """
-                    INSERT INTO concepts (concept_name,concept_item,concept_image, 
-                                            concept_category, concept_mood,concept_audience,concept_platform,
-                                            created_by,created_on,modified_on, modified_by)
+                    INSERT INTO concepts (name,image,category,overview,tone,
+                    style,duration, created_on, modified_on, created_by,modified_by)
                     VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                 """, data
             )
@@ -120,33 +117,40 @@ class ConceptsModel(DbModel):
 
 #TODO implement without parameters
 
-    def edit_concept(self, concept_name, concept_item, concept_image, concept_category, concept_mood,
-                     concept_audience, concept_platform, concept_id):
+    def edit_concept(self, concept_id, **data):
         """
             This method can modify one or all the fields of a concept
             
         """
+        
+        self.name = data["name"]
+        self.image = data["image"]
+        self.category = data["category"]
+        self.overview = data["overview"]
+        self.tone = data["tone"]
+        self.style = data["style"]
+        self.duration= data["duration"] 
+
         try:
+            data = (self.name, self.image, self.category, self.overview, self.tone,
+                    self.style, self.duration, self.modified_by, self.modified_on,concept_id)
             self.cur.execute(
                 """
                 UPDATE concepts
                 SET
-                concept_name= %s,
-                concept_item=%s,
-                concept_image=%s,
-                concept_category= %s,
-                concept_mood= %s,
-                concept_audience= %s,
-                concept_platform= %s,
+                name = %s,
+                image = %s,
+                category = %s,
+                overview = %s,
+                tone = %s,
+                style = %s,
+                duration = %s, 
                 modified_by= %s,
                 modified_on= %s
 
 
                 WHERE concept_id = %s;
-                """, (concept_name, concept_item, concept_image, concept_category, concept_mood,
-                      concept_audience, concept_platform,
-                      self.modified_by, self.modified_on, concept_id,
-                      )
+                """, data
             )
             self.commit()
             return True
