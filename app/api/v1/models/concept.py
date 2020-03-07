@@ -150,7 +150,7 @@ class ConceptsModel(DbModel):
 
 
                 WHERE concept_id = %s;
-                """, data
+                """,data
             )
             self.commit()
             return True
