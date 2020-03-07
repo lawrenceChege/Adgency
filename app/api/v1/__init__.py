@@ -3,7 +3,7 @@ from werkzeug.exceptions import MethodNotAllowed, Forbidden, BadRequest
 from flask_restplus import Api
 from flask_jwt_extended.exceptions import NoAuthorizationError
 from app.api.v1.views.users import Users, User, ViewUsers, ManageUsers
-from app.api.v1.views.concept import Concepts
+from app.api.v1.views.concept import Concepts, Concept
 # from twilio.base.exceptions import TwilioRestException
 
 version_one = Blueprint("v1", __name__, url_prefix="/api")
@@ -15,6 +15,7 @@ API.add_resource(Users, '/signup/')
 API.add_resource(User, '/login/')
 API.add_resource(ViewUsers, '/users/')
 API.add_resource(Concepts, '/client/concept/')
+API.add_resource(Concept, '/client/concept/<int:concept_id>/')
 
 
 

@@ -54,7 +54,7 @@ class ConceptsModel(DbModel):
         """
         try:
             self.cur.execute(
-                "SELECT * FROM conceptss WHERE concept_id=%s", (concept_id,)
+                "SELECT * FROM concepts WHERE concept_id=%s", (concept_id,)
                 )
             return self.findOne()
         except (Exception, psycopg2.DatabaseError) as error:
