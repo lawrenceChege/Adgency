@@ -133,7 +133,7 @@ class ConceptsModel(DbModel):
 
         try:
             data = (self.name, self.image, self.category, self.overview, self.tone,
-                    self.style, self.duration, self.modified_by, self.modified_on,concept_id)
+                    self.style, self.duration, self.modified_by, self.modified_on,concept_id,)
             self.cur.execute(
                 """
                 UPDATE concepts
