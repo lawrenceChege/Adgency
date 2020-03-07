@@ -13,12 +13,12 @@ class ConceptsModel(DbModel):
         This clas handles data manipulation for the concepts view
     """
     #TODO implement with an object or kwargs
+
     def __init__(self, concept_name=None, concept_item=None, concept_image=None, concept_category=None,
-        concept_mood=None, concept_audience=None, concept_platform=None,project_id=None):
+                 concept_mood=None, concept_audience=None, concept_platform=None, project_id=None):
         """
             Initialize the concept class and import 
         """
-
 
         super().__init__()
         self.concept_name = concept_name
@@ -48,20 +48,19 @@ class ConceptsModel(DbModel):
             print("An error occured whenretrieving concept using name")
             return None
 
-    def find_concept_by_id(self,concept_id):
+    def find_concept_by_id(self, concept_id):
         """
             Fetch a concept from database using its id
         """
         try:
             self.cur.execute(
                 "SELECT * FROM concepts WHERE concept_id=%s", (concept_id,)
-                )
+            )
             return self.findOne()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             print("An error occured when retrieving concept using id")
             return None
-
 
     def get_all_concepts(self):
         """
@@ -87,7 +86,7 @@ class ConceptsModel(DbModel):
                 FROM concepts
                 WHERE 
                 concept_category=%s
-                """,(concept_category,)
+                """, (concept_category,)
             )
             return self.findAll()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -100,9 +99,9 @@ class ConceptsModel(DbModel):
             Save the concept to the database
         """
         try:
-            data =( self.concept_name,self.concept_item, self.concept_image, self.concept_category, self.concept_mood ,
+            data = (self.concept_name, self.concept_item, self.concept_image, self.concept_category, self.concept_mood,
                     self.concept_audience, self.concept_platform,
-                    self.created_by,self.created_on,self.modified_on, self.modified_by, )
+                    self.created_by, self.created_on, self.modified_on, self.modified_by, )
 
             self.cur.execute(
                 """
@@ -120,9 +119,9 @@ class ConceptsModel(DbModel):
             return None
 
 #TODO implement without parameters
- 
-    def edit_concept(self,concept_name,concept_item, concept_image, concept_category, concept_mood,
-                       concept_audience, concept_platform, concept_id):
+
+    def edit_concept(self, concept_name, concept_item, concept_image, concept_category, concept_mood,
+                     concept_audience, concept_platform, concept_id):
         """
             This method can modify one or all the fields of a concept
             
@@ -140,13 +139,15 @@ class ConceptsModel(DbModel):
                 concept_audience= %s,
                 concept_platform= %s,
                 modified_by= %s,
-                modified_on= %s,
+                modified_on= %s
+
+
                 WHERE concept_id = %s;
-                """,(concept_name, concept_item,concept_image, concept_category, concept_mood,
-                       concept_audience, concept_platform,
-                       self.modified_by,self.modified_on, concept_id,
-                )
-                )
+                """, (concept_name, concept_item, concept_image, concept_category, concept_mood,
+                      concept_audience, concept_platform,
+                      self.modified_by, self.modified_on, concept_id,
+                      )
+            )
             self.commit()
             return True
         except (Exception, psycopg2.DatabaseError) as error:
@@ -161,12 +162,10 @@ class ConceptsModel(DbModel):
         try:
             self.cur.execute(
                 "DELETE FROM concepts WHERE concept_id=%s", (concept_id,)
-                )
+            )
             self.commit()
             return True
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             print('An error occured when trying to delete the concept from the database')
             return None
-
-    
