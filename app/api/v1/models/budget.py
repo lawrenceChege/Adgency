@@ -20,6 +20,10 @@ class BudgetModel(DbModel):
         """
 
         super().__init__()
+        self.created_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
+        self.modified_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
+        self.created_by = get_jwt_identity()
+        self.modified_by = get_jwt_identity()
 
     def find_budget_by_item(self, item):
         """
@@ -32,7 +36,7 @@ class BudgetModel(DbModel):
             return self.findOne()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-            print("An error occured whenretrieving budget using item")
+            print("An error occured when retrieving budget using item")
             return None
 
     def find_budget_by_id(self, budget_id):
@@ -94,13 +98,15 @@ class BudgetModel(DbModel):
 
         try:
             data = (self.item, self.description, self.start_date,
-                     self.end_date, self.amount, self.status)
+                     self.end_date, self.amount, self.status, self.created_on,
+                     self.modified_on, self.created_by, self.modified_by)
 
             self.cur.execute(
                 """
                     INSERT INTO budget (item,description,start_date
-                                        ,end_date,amount, status)
-                    VALUES(%s, %s, %s, %s, %s, %s);
+                                        ,end_date,amount, status,
+                                        created_on, modified_on, created_by,modified_by)
+                    VALUES(%s, %s, %s, %s, %s, %s,%s, %s, %s, %s);
                 """, data
             )
             self.commit()
@@ -127,7 +133,8 @@ class BudgetModel(DbModel):
 
         try:
             data = (self.item, self.description, self.start_date,
-                     self.end_date, self.amount, self.status)
+                     self.end_date, self.amount, self.status, self.created_on,
+                     self.modified_on, self.created_by, self.modified_by)
             self.cur.execute(
                 """
                 UPDATE budget
@@ -137,7 +144,9 @@ class BudgetModel(DbModel):
                 start_date = %s,
                 end_date = %s,
                 amount = %s,
-                status = %s
+                status = %s,
+                modified_by= %s,
+                modified_on= %s
 
                 WHERE budget_id = %s;
                 """,data
