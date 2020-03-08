@@ -79,6 +79,7 @@ class DbModel():
             """
                 CREATE TABLE IF NOT EXISTS audiences(
                     audience_id SERIAL PRIMARY KEY NOT NULL,
+                    name VARCHAR(100),
                     age_group VARCHAR(100) NOT NULL,
                     gender VARCHAR(255),                    
                     location VARCHAR(100)
@@ -148,40 +149,46 @@ class DbModel():
             """
                 CREATE TABLE IF NOT EXISTS budget(
                     budget_id SERIAL PRIMARY KEY NOT NULL,
-                    budget_item VARCHAR(100) NOT NULL,
-                    item_description VARCHAR(255),                    
+                    item VARCHAR(100) NOT NULL,
+                    description VARCHAR(255),                    
                     start_date DATE NOT NULL,
                     end_date DATE NOT NULL,
-                    item_amount numeric(15,6),
-                    item_status BOOLEAN NOT NULL DEFAULT FALSE,
-                    project_id INT REFERENCES projects (project_id)
-                )
-            """,
-            """
-                CREATE TABLE IF NOT EXISTS ideas(
-                    idea_id SERIAL PRIMARY KEY NOT NULL,
-                    idea_name VARCHAR(100) NOT NULL,
-                    idea_description VARCHAR(255), 
-                    image_link VARCHAR(100),                   
-                    project_id INT REFERENCES projects (project_id),
-                    workspace_id INT REFERENCES workspaces (workspace_id),
-                    user_id INT REFERENCES users (user_id)
+                    amount numeric(15,6),
+                    status BOOLEAN NOT NULL DEFAULT FALSE,
+                    created_by INT REFERENCES users (user_id),
+                    created_on VARCHAR(50) NOT NULL ,
+                    modified_by INT REFERENCES users (user_id),
+                    modified_on VARCHAR(50) NOT NULL
                 )
             """,
             """
                 CREATE TABLE IF NOT EXISTS comments(
                     comment_id SERIAL PRIMARY KEY NOT NULL,
-                    comment_description VARCHAR(255) NOT NULL,
-                    user_id INT REFERENCES users (user_id),
-                    idea_id INT REFERENCES ideas (idea_id)
+                    description VARCHAR(255) NOT NULL,
+                    created_by INT REFERENCES users (user_id),
+                    created_on VARCHAR(50) NOT NULL ,
+                    modified_by INT REFERENCES users (user_id),
+                    modified_on VARCHAR(50) NOT NULL
                 )
             """,
             """
                 CREATE TABLE IF NOT EXISTS votes(
                     vote_id SERIAL PRIMARY KEY NOT NULL,
-                    vote_value INT NOT NULL,                 
-                    user_id INT REFERENCES users (user_id),
-                    idea_id INT REFERENCES ideas (idea_id)
+                    vote_value INT NOT NULL
+                )
+            """,
+            """
+                CREATE TABLE IF NOT EXISTS ideas(
+                    idea_id SERIAL PRIMARY KEY NOT NULL,
+                    name VARCHAR(100) NOT NULL,
+                    description VARCHAR(255), 
+                    image_link VARCHAR(100),                 
+                    comment_id INT REFERENCES comments (comment_id),
+                    vote_id INT REFERENCES votes (vote_id),
+                    created_by INT REFERENCES users (user_id),
+                    created_on VARCHAR(50) NOT NULL ,
+                    modified_by INT REFERENCES users (user_id),
+                    modified_on VARCHAR(50) NOT NULL
                 )
             """,
             """
