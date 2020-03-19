@@ -21,15 +21,16 @@ class ConceptsModel(DbModel):
 
         super().__init__()
         self.created_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
-        self.modified_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
+        self.updated_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
         self.created_by = get_jwt_identity()
-        self.modified_by = get_jwt_identity()
+        self.updated_by = get_jwt_identity()
 
     def find_concept_by_name(self, name):
         """
             Fetch a concept from database using its name
         """
         try:
+            print(name)
             self.cur.execute(
                 "SELECT * FROM concepts WHERE name=%s", (name,)
             )
@@ -45,7 +46,16 @@ class ConceptsModel(DbModel):
         """
         try:
             self.cur.execute(
-                "SELECT * FROM concepts WHERE concept_id=%s", (concept_id,)
+                """SELECT 
+                    name,
+                    image,
+                    category,
+                    overview,
+                    tone,
+                    style,
+                    duration
+                    FROM concepts 
+                    WHERE concept_id=%s""", (concept_id,)
             )
             return self.findOne()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -59,7 +69,15 @@ class ConceptsModel(DbModel):
         """
         try:
             self.cur.execute(
-                "SELECT * FROM concepts"
+                """SELECT 
+                    name,
+                    image,
+                    category,
+                    overview,
+                    tone,
+                    style,
+                    duration
+                    FROM concepts"""
             )
             return self.findAll()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -73,11 +91,18 @@ class ConceptsModel(DbModel):
         """
         try:
             self.cur.execute(
-                """ SELECT * 
-                FROM concepts
-                WHERE 
-                category=%s
-                """, (concept_category,)
+                """ SELECT 
+                    name,
+                    image,
+                    category,
+                    overview,
+                    tone,
+                    style,
+                    duration
+                    FROM concepts
+                    WHERE 
+                    category=%s
+                    """, (concept_category,)
             )
             return self.findAll()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -95,17 +120,18 @@ class ConceptsModel(DbModel):
         self.overview = data["overview"]
         self.tone = data["tone"]
         self.style = data["style"]
-        self.duration= data["duration"] 
+        self.duration= data["duration"]
+        self.project= data["project"] 
         try:
             data = (self.name, self.image, self.category, self.overview, self.tone,
-                    self.style, self.duration, self.created_on, self.modified_on,
-                    self.created_by, self.modified_by)
+                    self.style, self.duration,self.project, self.created_on, self.updated_on,
+                    self.created_by, self.updated_by)
 
             self.cur.execute(
                 """
                     INSERT INTO concepts (name,image,category,overview,tone,
-                    style,duration, created_on, modified_on, created_by,modified_by)
-                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    style,duration,project, created_on, updated_on, created_by,updated_by)
+                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                 """, data
             )
             self.commit()
@@ -133,7 +159,7 @@ class ConceptsModel(DbModel):
 
         try:
             data = (self.name, self.image, self.category, self.overview, self.tone,
-                    self.style, self.duration, self.modified_by, self.modified_on,concept_id,)
+                    self.style, self.duration, self.updated_by, self.updated_on,concept_id,)
             self.cur.execute(
                 """
                 UPDATE concepts
@@ -145,8 +171,8 @@ class ConceptsModel(DbModel):
                 tone = %s,
                 style = %s,
                 duration = %s, 
-                modified_by= %s,
-                modified_on= %s
+                updated_by= %s,
+                updated_on= %s
 
 
                 WHERE concept_id = %s;

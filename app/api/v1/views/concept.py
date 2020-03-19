@@ -7,7 +7,6 @@ from flask_jwt_extended import jwt_required
 from flask import request, jsonify, Flask
 from app.api.v1.models.users import UserModel
 from app.api.v1.models.concept import ConceptsModel 
-from app.api.v1.models.insights import InsightsModel
 from app.api.v1.validators.validators import Validate
 
 
@@ -52,9 +51,10 @@ class Concepts(Resource):
         parser.add_argument("duration",
                             type=str,
                             help="Concept duration is optional.")
-        parser.add_argument("insight",
+        parser.add_argument("project",
                             type=str,
-                            help="Concept insight is optional.")
+                            required=True,
+                            help="Concept project is required.")
 
         Valid = Validate()
         args = parser.parse_args()
@@ -69,14 +69,13 @@ class Concepts(Resource):
             "overview" : args.get("overview").strip(),
             "tone" : args.get("tone").strip(),
             "style": args.get("style").strip(),
-            "duration" : args.get("duration").strip()
+            "duration" : args.get("duration").strip(),
+            "project" : args.get("project").strip()
             }
             
-        insight = args.get("insight").strip()
 
         # Connecting to data models
         self.model = ConceptsModel()
-        self.insight = InsightsModel(insight=insight)
 
         if not request.json:
             return jsonify({"error": "Make sure your request type is application/json"})
@@ -104,9 +103,9 @@ class Concepts(Resource):
         if not Valid.valid_string(data["duration"]) or not bool(data["duration"]):
             return {"error": "Concept duration is invalid or empty",
                     "hint": "Concept duration should be a string"}, 400
-        if not Valid.valid_string(insight) or not bool(insight):
-            return {"error": "Concept insight is invalid or empty",
-                    "hint": "Concept insight should be a string"}, 400
+        if not Valid.valid_string(data["project"]) or not bool(data["project"]):
+            return {"error": "Concept project is invalid or empty",
+                    "hint": "Concept project should be a string"}, 400
 
         #TODO redirect to edit concept
         if self.model.find_concept_by_name(data["name"]):
@@ -114,13 +113,10 @@ class Concepts(Resource):
 
         try:
             self.model.save_concept_to_database(**data)
-            self.insight.save_insight_to_database()
-            insight_id = self.insight.find_insight_id(insight)
-            self.insight.update_insight(insight_id)
             return {
                 "status": 201,
                 "data": [{
-                    "concept": self.model.find_concept_by_name(data["name"]),
+                    "concept": data["name"],
                 }],
                 "message": "Concept created successfully"
             }, 201

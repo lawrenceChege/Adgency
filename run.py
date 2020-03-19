@@ -12,7 +12,7 @@ APP = create_app("default")
 with APP.app_context():
         db = DbModel()
         db.init_db(APP)
-        db.create_tables()
+        # db.create_tables()
 
 if __name__ == "__main__":
     APP.run(debug = True)

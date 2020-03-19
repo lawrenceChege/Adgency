@@ -5,6 +5,7 @@ from flask_jwt_extended.exceptions import NoAuthorizationError
 from app.api.v1.views.users import Users, User, ViewUsers, ManageUsers
 from app.api.v1.views.concept import Concepts, Concept
 from app.api.v1.views.insights import Insight, Insights
+from app.api.v1.views.companies import Companies, Company
 
 version_one = Blueprint("v1", __name__, url_prefix="/api")
 API = Api(version_one, catch_all_404s= True)
@@ -18,6 +19,8 @@ API.add_resource(Concepts, '/client/concept/')
 API.add_resource(Concept, '/client/concept/<int:concept_id>/')
 API.add_resource(Insights, '/client/concept/insight/')
 API.add_resource(Insight, '/client/concept/insight/<int:insight_id>/')
+API.add_resource(Companies, '/companies/')
+API.add_resource(Company, '/companies/<int:company_id>/')
 
 
 

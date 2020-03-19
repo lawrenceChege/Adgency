@@ -224,6 +224,26 @@ class UserModel(DbModel):
             "refresh_token": refresh_token
         }
 
+    def uplink_company(self, company_id, user_id):
+        """
+            Link user to company
+        """
+        try:
+            self.cur.execute(
+                """
+                    UPDATE users
+                    SET
+                    company_id= %s
+                    WHERE
+                    user_id = %s;
+                """,(company_id, user_id,)
+            )
+            self.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            return None
+
+
 class RevokedTokenModel(DbModel):
     """
         Revoke tokens
@@ -264,3 +284,5 @@ class RevokedTokenModel(DbModel):
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             print('Error creating user in database')
+
+    

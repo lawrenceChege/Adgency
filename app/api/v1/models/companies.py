@@ -1,5 +1,5 @@
 """
-    This module handles the models for companys
+    This module handles the models for companies
 """
 import time
 import psycopg2
@@ -8,9 +8,9 @@ from flask_jwt_extended import get_jwt_identity
 from migrations import DbModel
 
 
-class companysModel(DbModel):
+class companiesModel(DbModel):
     """
-        This clas handles data manipulation for the companys view
+        This clas handles data manipulation for the companies view
     """
     #TODO implement with an object or kwargs
 
@@ -20,10 +20,8 @@ class companysModel(DbModel):
         """
 
         super().__init__()
-        self.created_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
+        self.created_at = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
         self.modified_on = time.strftime('%a, %d %b %Y, %I:%M:%S %p')
-        self.created_by = get_jwt_identity()
-        self.modified_by = get_jwt_identity()
 
     def find_company_by_name(self, name):
         """
@@ -31,7 +29,7 @@ class companysModel(DbModel):
         """
         try:
             self.cur.execute(
-                "SELECT * FROM companys WHERE name=%s", (name,)
+                "SELECT * FROM companies WHERE company_name=%s", (name,)
             )
             return self.findOne()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -45,7 +43,7 @@ class companysModel(DbModel):
         """
         try:
             self.cur.execute(
-                "SELECT * FROM companys WHERE company_id=%s", (company_id,)
+                "SELECT * FROM companies WHERE company_id=%s", (company_id,)
             )
             return self.findOne()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -53,60 +51,56 @@ class companysModel(DbModel):
             print("An error occured when retrieving company using id")
             return None
 
-    def get_all_companys(self):
+    def get_all_companies(self):
         """
-            This method returns all the saved companys
+            This method returns all the saved companies
         """
         try:
             self.cur.execute(
-                "SELECT * FROM companys"
+                "SELECT * FROM companies"
             )
             return self.findAll()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-            print("An error occured when retrieving all companys")
+            print("An error occured when retrieving all companies")
             return None
 
-    def find_companys_by_category(self, company_category):
+    def find_clients(self):
         """
-            Filter incidents by category
+            Filter incidents by role
         """
         try:
             self.cur.execute(
                 """ SELECT * 
-                FROM companys
+                FROM companies
                 WHERE 
-                category=%s
-                """, (company_category,)
+                is_client=%s
+                """, ("true",)
             )
             return self.findAll()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-            print("An error occured when retrieving companys by category")
+            print("An error occured when retrieving companies by category")
             return None
 
     def save_company_to_database(self, **data):
         """
             Save the company to the database
         """
-        self.name = data["name"]
-        self.image = data["image"]
-        self.category = data["category"]
-        self.overview = data["overview"]
-        self.tone = data["tone"]
-        self.style = data["style"]
-        self.duration= data["duration"] 
+        self.company_name = data["company_name"]
+        self.email = data["email"]
+        self.is_client = data["is_client"]
+        
         try:
-            data = (self.name, self.image, self.category, self.overview, self.tone,
-                    self.style, self.duration, self.created_on, self.modified_on,
-                    self.created_by, self.modified_by)
+            sdata = (self.company_name, self.email, self.is_client,
+                     self.created_at, self.modified_on)
+            print(sdata)
 
             self.cur.execute(
                 """
-                    INSERT INTO companys (name,image,category,overview,tone,
-                    style,duration, created_on, modified_on, created_by,modified_by)
-                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-                """, data
+                    INSERT INTO companies (company_name, email, is_client,created_at, modified_on,)
+                    VALUES(%s, %s, %s, %s, %s);
+                """, sdata
             )
             self.commit()
             return True
@@ -123,28 +117,19 @@ class companysModel(DbModel):
             
         """
         
-        self.name = data["name"]
-        self.image = data["image"]
-        self.category = data["category"]
-        self.overview = data["overview"]
-        self.tone = data["tone"]
-        self.style = data["style"]
-        self.duration= data["duration"] 
+        self.company_name = data["company_name"]
+        self.email = data["email"]
+        self.is_client = data["is_client"]
 
         try:
-            data = (self.name, self.image, self.category, self.overview, self.tone,
-                    self.style, self.duration, self.modified_by, self.modified_on,company_id,)
+            data = (self.company_name, self.email, self.is_client, company_id,)
             self.cur.execute(
                 """
-                UPDATE companys
+                UPDATE companies
                 SET
-                name = %s,
-                image = %s,
-                category = %s,
-                overview = %s,
-                tone = %s,
-                style = %s,
-                duration = %s, 
+                company_name = %s,
+                email = %s,
+                is_client = %s,
                 modified_by= %s,
                 modified_on= %s
 
@@ -165,7 +150,7 @@ class companysModel(DbModel):
         """
         try:
             self.cur.execute(
-                "DELETE FROM companys WHERE company_id=%s", (company_id,)
+                "DELETE FROM companies WHERE company_id=%s", (company_id,)
             )
             self.commit()
             return True
